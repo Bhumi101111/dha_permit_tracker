@@ -45,6 +45,8 @@ router.post('/create-checkout', authMiddleware, async (req, res, next) => {
     const unitAmount = Math.round(amountEur * 100);
 
     const serverUrl = process.env.SERVER_URL || `${req.protocol}://${req.get('host')}`;
+    // In a single-service deploy the client is served from the same origin.
+    const clientUrl = process.env.CLIENT_URL || serverUrl;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -63,7 +65,7 @@ router.post('/create-checkout', authMiddleware, async (req, res, next) => {
       ],
       customer_email: req.user.email,
       success_url: `${serverUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/?canceled=1`,
+      cancel_url: `${clientUrl}/?canceled=1`,
       metadata: {
         email: req.user.email,
         tier: req.user.tier,
@@ -90,7 +92,7 @@ router.post('/create-checkout', authMiddleware, async (req, res, next) => {
 router.get('/success', async (req, res, next) => {
   try {
     const sessionId = String(req.query.session_id ?? '');
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
 
     if (!sessionId) return res.redirect(`${clientUrl}/?error=missing_session`);
 

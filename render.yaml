@@ -1,0 +1,39 @@
+# Render Blueprint — DHA Permit Tracker
+# Single web service: builds the React client and serves it from the Express server.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: dha-permit-tracker
+    runtime: node
+    plan: free
+    # Build the client and seed the sample Excel, install server deps.
+    buildCommand: npm run build
+    startCommand: npm start
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Single-service deploy: the client is served from the same origin as the API.
+      # CLIENT_URL / SERVER_URL are left unset so the server derives them from the
+      # incoming request origin automatically.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SEARCH_RATE_EUR
+        value: "2.50"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false

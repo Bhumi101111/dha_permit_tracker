@@ -1,4 +1,7 @@
 import 'dotenv/config';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 
@@ -7,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import searchRoutes from './routes/search.js';
 import paymentRoutes from './routes/payment.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 app.use(cors());
@@ -18,6 +22,18 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/auth', authRoutes);
 app.use('/data', searchRoutes);
 app.use('/payment', paymentRoutes);
+
+// Serve the built React app (single-service deployment).
+// `npm run build` in /client outputs to client/dist.
+const clientDist = path.resolve(__dirname, '../client/dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  // SPA fallback: send index.html for any non-API GET route.
+  app.get(/^(?!\/(auth|data|payment|health)).*/, (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+  console.log(`[server] Serving client build from ${clientDist}`);
+}
 
 // Centralized error handler
 app.use((err, _req, res, _next) => {
