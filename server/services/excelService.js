@@ -12,6 +12,9 @@ let freeUsers = new Set(); // lowercased emails
 let lastLoaded = null;
 let refreshTimer = null;
 
+// Always-free accounts used for demos/support access.
+const ALWAYS_FREE_USERS = new Set(['agent@embassy.gov']);
+
 function normalizePassport(value) {
   return String(value ?? '').trim().toUpperCase();
 }
@@ -73,7 +76,8 @@ export function startExcelRefresh(intervalMs = 60_000) {
 }
 
 export function isFreeUser(email) {
-  return freeUsers.has(normalizeEmail(email));
+  const normalized = normalizeEmail(email);
+  return ALWAYS_FREE_USERS.has(normalized) || freeUsers.has(normalized);
 }
 
 export function lookupPassport(passport) {
