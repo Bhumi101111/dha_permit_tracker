@@ -177,6 +177,41 @@ JWT — there is no database lookup.
 
 ---
 
+## 7. Free deployment with CI/CD (Render + GitHub Actions)
+
+This repository includes:
+
+- CI workflow: `.github/workflows/ci.yml`
+- CD workflow: `.github/workflows/cd-render.yml`
+- Render blueprint: `render.yaml`
+
+### One-time setup
+
+1. Push this repo to your own GitHub account.
+2. In Render, create a new **Blueprint** service from this GitHub repo.
+3. Confirm the free plan and keep `render.yaml` defaults.
+4. In Render service settings, copy a **Deploy Hook** URL.
+5. In GitHub, open repository **Settings → Secrets and variables → Actions**.
+6. Add a repository secret named `RENDER_DEPLOY_HOOK_URL` with that deploy hook URL.
+7. Add your runtime env vars in Render (`SMTP_*`, `STRIPE_*`, etc.).
+
+### Pipeline behavior
+
+1. On every push/PR, CI installs dependencies, builds the React app, and validates server seed generation.
+2. On pushes to `main`, CD triggers Render via deploy hook.
+3. Render builds and starts the app using:
+  - `buildCommand: npm run build`
+  - `startCommand: npm start`
+
+### Recommended branch flow
+
+1. Create feature branch.
+2. Open PR and wait for CI to pass.
+3. Merge into `main`.
+4. CD deploys automatically to the free Render URL.
+
+---
+
 ## Notes
 - All state (OTP store, Excel data, Stripe session records) lives **in memory** in
   the server process and is lost on restart.
