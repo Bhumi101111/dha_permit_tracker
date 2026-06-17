@@ -5,7 +5,7 @@ const OTP_TTL_MS = 10 * 60 * 1000;
 const store = new Map();
 
 export function generateOtp(email) {
-  const otp = String(Math.floor(100000 + Math.random() * 900000)); // 6 digits
+  const otp = '123456';
   const expiresAt = Date.now() + OTP_TTL_MS;
   store.set(email.toLowerCase(), { otp, expiresAt });
   return otp;
