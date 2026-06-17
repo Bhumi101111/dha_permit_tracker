@@ -89,6 +89,7 @@ export default function App() {
 
   const reset = () => {
     logout();
+    setPending({ email: '', tier: null });
     setToken(null);
     setPassports([]);
     setResults([]);
@@ -97,9 +98,22 @@ export default function App() {
     setStep('email');
   };
 
+  const showLogout = ['search', 'payment', 'confirm', 'results'].includes(step);
+
   return (
     <div className="min-h-screen px-4 py-10">
       <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-sm print:shadow-none">
+        {showLogout && (
+          <div className="mb-6 flex justify-end">
+            <button
+              onClick={reset}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+
         {step === 'email' && <EmailPage onSubmitted={handleEmailSubmitted} />}
 
         {step === 'otp' && (
